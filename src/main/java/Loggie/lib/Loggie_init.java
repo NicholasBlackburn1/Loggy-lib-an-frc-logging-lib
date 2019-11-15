@@ -1,3 +1,0 @@
-package Loggie.lib;
-
-public

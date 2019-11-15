@@ -30,3 +30,8 @@ dependencies {
     api 'edu.wpi.cscore.java:cscore:1.0.2:linux'
     api 'edu.wpi.first.cameraserver:cameraserver-java:2019.4.1'
 }
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
