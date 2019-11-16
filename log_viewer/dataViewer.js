@@ -19,6 +19,8 @@ var time_range_sec = 10.0;
 var timeInSeconds = true;
 var unitsPresent = false;
 
+var signalNameList = [];
+
 var dflt_options = {
 
     credits: {
@@ -114,8 +116,10 @@ var dflt_options = {
         enabled: false
     },
 
-    colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#88FF00', '#8800FF', '#0088FF', '#FF8800',
-        '#FF0088', '#00FF88',
+    colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', 
+             '#88FF00', '#8800FF', '#0088FF', '#FF8800', '#FF0088', '#00FF88',
+             '#FF4444', '#44FF44', '#4444FF', '#FFFF44', '#FF44FF', '#44FFFF', 
+             '#88FF44', '#8844FF', '#4488FF', '#FF8844', '#FF4488', '#44FF88',
     ],
 
     plotOptions: {
@@ -290,11 +294,11 @@ function handleFileSelect(files_in) {
                         }
                     } else {
                         //Parsing name of other columns (assumed to be signals)
-                        signalName = item.replace(/ /g, '').trim();
+                        cleanedName = item.replace(/ /g, '').trim();
                         if (item.length > 0) { //skip empty elements
                             //Create a new series in the highCharts plot per signal
                             temp_series.push({
-                                name: signalName,
+                                name: cleanedName,
                                 data: [],
                                 visible: false,
                                 visibility_counter: 0,
@@ -305,7 +309,8 @@ function handleFileSelect(files_in) {
                                     },
                                 },
                             });
-                            checkboxHTMLString += "<input type=\"checkbox\" id=\""+plotter_index+"\" onclick=\"checkboxHandler(this)\"> "+ item + "<br>"
+                            signalNameList.push(item)
+                            checkboxHTMLString += "<div id=\"checkboxDiv_"+plotter_index+"\"><input type=\"checkbox\" id=\""+plotter_index+"\" onclick=\"checkboxHandler(this)\"> "+ item + "<br></div>"
                             plotter_index++;
                         }
                     }
@@ -429,21 +434,61 @@ function handleFileSelect(files_in) {
     };
 };
 
+function checkName(filterSpec, name){
+    var result = true;
+
+    if(filterSpec.length == 0){
+        result = true;
+    } else {
+        re = new RegExp(filterSpec.toLowerCase().replace(/\*/g,'.*').replace(/\?/g,'.'));
+        strMatch = re.test(name.toLowerCase());
+
+        console.log(strMatch)
+
+        if(strMatch){
+            result = true;
+        } else {
+            result = false;
+        }
+    }
+
+    return result;
+}
+
+function updateFilter(elem){
+    searchString = elem.value;
+    console.log(searchString)
+    if(global_chart){
+        for(var i = 0; i < numSignals; i++){
+            signalName = signalNameList[i]
+            elementName = "checkboxDiv_"+i
+            if(checkName(searchString, signalName)){
+                document.getElementById(elementName).style.display = "block";
+            } else {
+                document.getElementById(elementName).style.display = "none";
+            }
+        }
+    }
+
+}
+
 function rectifySize(){
     //Need highcharts to flow vertically. Seems like it's stuck at 400px. Huh.
-    height = 0.8* window.innerHeight;
-    global_chart.setSize(undefined, height);
-    global_chart.reflow();
-    global_chart.redraw();
+    if(global_chart){
+        height = 0.8* window.innerHeight;
+        global_chart.setSize(undefined, height);
+        global_chart.reflow();
+        global_chart.redraw();
+    }
 }
 
 function checkboxHandler(elem){
     var itemNo = parseInt(elem.id); //This feels like a hack. Ah well.
     if(global_chart) {
         global_chart.series[itemNo].setVisible(elem.checked, false);
+        global_chart.redraw();
+        rectifySize();
     }
-    global_chart.redraw();
-    rectifySize();
 }
 
 
@@ -452,6 +497,7 @@ function hideAll() {
         for (itemNo = 0; itemNo < global_chart.series.length; itemNo++) {
             global_chart.series[itemNo].setVisible(false, false);
         }
+        rectifySize();
     }
 }
 
