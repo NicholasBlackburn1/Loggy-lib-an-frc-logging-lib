@@ -18,9 +18,11 @@ textarea {
     color: #111;
 }
 
+
 body {
     font-size: 1em;
     line-height: 1.4;
+    min-height: 100%;
 }
 
 /*
@@ -115,8 +117,7 @@ h2 {
 }*/
 
 body {
-    background: #000;
-    background-image: url("triangles.png");
+    background: #222;
     padding: 1em;
     margin: 0;
     font-size: 16px;
@@ -148,7 +149,7 @@ button:disabled {
    color: #555;
 }
 
-input[type="text"], input[type="tel"], input[type="number"], input[type="checkbox"], textarea, select {
+input[type="text"], input[type="tel"], input[type="number"], input[type="checkbox"], input[type="file"], textarea, select {
     border: 1px solid #111;
     padding: 0.5em;
     font-size: 15px;
@@ -582,4 +583,56 @@ a:active{
         page-break-after: avoid;
     }
 }
+
+  
+    .sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.0s;
+    padding-top: 60px;
+    }
+
+    .sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.0s;
+    }
+
+    .sidenav a:hover {
+    color: #f1f1f1;
+    }
+
+    .sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+    }
+
+    #main {
+    transition: margin-left .0s;
+    padding: 16px;
+    }
+
+    @media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+    }
+
+    .alignleft {
+        float: left;
+    }
+    .alignright {
+        float: right;
+    }
 

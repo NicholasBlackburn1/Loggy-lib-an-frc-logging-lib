@@ -107,18 +107,7 @@ var dflt_options = {
     }],
 
     legend: {
-        enabled: true,
-        itemMarginBottom: 2,
-        itemMarginTop: 2,
-        itemWidth: 300,
-        itemStyle: {
-            font: '9pt Trebuchet MS, Verdana, sans-serif',
-            color: '#DDD'
-        },
-        itemHoverStyle: {
-            color: 'gray'
-        }
-
+        enabled: false
     },
 
     exporting: {
@@ -257,6 +246,8 @@ function handleFileSelect(files_in) {
     var units_to_yaxis_index = [];
     var yaxis_index = 1;
 
+    var checkboxHTMLString = ""
+
 
     //Destroy any existing chart.
     if (global_chart) {
@@ -299,10 +290,11 @@ function handleFileSelect(files_in) {
                         }
                     } else {
                         //Parsing name of other columns (assumed to be signals)
+                        signalName = item.replace(/ /g, '').trim();
                         if (item.length > 0) { //skip empty elements
                             //Create a new series in the highCharts plot per signal
                             temp_series.push({
-                                name: item.replace(/ /g, '').trim(),
+                                name: signalName,
                                 data: [],
                                 visible: false,
                                 visibility_counter: 0,
@@ -313,11 +305,13 @@ function handleFileSelect(files_in) {
                                     },
                                 },
                             });
+                            checkboxHTMLString += "<input type=\"checkbox\" id=\""+plotter_index+"\" onclick=\"checkboxHandler(this)\"> "+ item + "<br>"
                             plotter_index++;
                         }
                     }
                 });
                 numSignals = plotter_index;
+                document.getElementById("signalCheckboxes").innerHTML = checkboxHTMLString;
             }
 
             // second line might contain units...
@@ -415,6 +409,7 @@ function handleFileSelect(files_in) {
 
         //Create dat chart
         global_chart = new Highcharts.Chart(options);
+        rectifySize()
 
         //The following chunk of main code and handler functions are to add chart interaction
         // which I find useful, but which highcharts does not implement natively.
@@ -431,11 +426,25 @@ function handleFileSelect(files_in) {
         
         sq.e.addEventListener('mousemove', ChartMouseMoveHandler, false);
 
-
-
-
     };
 };
+
+function rectifySize(){
+    //Need highcharts to flow vertically. Seems like it's stuck at 400px. Huh.
+    height = 0.8* window.innerHeight;
+    global_chart.setSize(undefined, height);
+    global_chart.reflow();
+    global_chart.redraw();
+}
+
+function checkboxHandler(elem){
+    var itemNo = parseInt(elem.id); //This feels like a hack. Ah well.
+    if(global_chart) {
+        global_chart.series[itemNo].setVisible(elem.checked, false);
+    }
+    global_chart.redraw();
+    rectifySize();
+}
 
 
 function hideAll() {
@@ -444,6 +453,17 @@ function hideAll() {
             global_chart.series[itemNo].setVisible(false, false);
         }
     }
-    global_chart.redraw();
+}
+
+function openNav() {
+    document.getElementById("mySidenav").style.width = "350px";
+    document.getElementById("main").style.marginLeft = "350px";
+    rectifySize();
+}
+
+function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+    document.getElementById("main").style.marginLeft= "0";
+    rectifySize();
 }
 
